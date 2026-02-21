@@ -1,0 +1,346 @@
+{
+  "version": "1.0",
+  "initiativeCore": {
+    "problemStatement": "Parents need a simple, zero-infrastructure baby monitoring solution that works entirely in the browser without requiring server setup, app installation, or keeping the browser tab in focus, enabling real-time video streaming and cry detection notifications between devices.",
+    "goals": [
+      "Enable peer-to-peer video streaming between browser instances without server infrastructure",
+      "Detect baby crying and send browser notifications when the monitoring tab is open but not in focus",
+      "Deliver the entire application as a single self-contained HTML file requiring no installation",
+      "Support dual-mode operation where any instance can act as camera (sender) or viewer (receiver)"
+    ],
+    "nonGoals": [
+      "Cloud recording or storage of video streams",
+      "Mobile native app development",
+      "Multi-room monitoring with multiple camera sources",
+      "Historical playback of monitoring sessions",
+      "User authentication or account management"
+    ],
+    "businessImpact": "Success enables parents to repurpose existing devices as baby monitors without purchasing dedicated hardware or subscribing to cloud services, reducing barrier to entry. Failure results in continued reliance on expensive dedicated baby monitors or inadequate smartphone solutions requiring constant screen attention.",
+    "stakeholders": "Parents with infants/toddlers, caregivers, technical users comfortable with browser-based tools"
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "FR-01",
+        "description": "Application must be deliverable as a single HTML file with all dependencies embedded (CSS, JavaScript, assets)",
+        "priority": "must"
+      },
+      {
+        "id": "FR-02",
+        "description": "Establish peer-to-peer WebRTC connection between two browser instances without signaling server",
+        "priority": "must"
+      },
+      {
+        "id": "FR-03",
+        "description": "Capture video and audio from device camera/microphone in sender mode",
+        "priority": "must"
+      },
+      {
+        "id": "FR-04",
+        "description": "Stream captured media to connected peer in real-time with acceptable latency (<3 seconds)",
+        "priority": "must"
+      },
+      {
+        "id": "FR-05",
+        "description": "Detect crying sounds from audio stream using client-side audio analysis",
+        "priority": "must"
+      },
+      {
+        "id": "FR-06",
+        "description": "Send browser notifications when crying is detected, even when tab is not in focus",
+        "priority": "must"
+      },
+      {
+        "id": "FR-07",
+        "description": "Allow user to toggle between sender (camera) and viewer (monitor) modes within the same application",
+        "priority": "must"
+      },
+      {
+        "id": "FR-08",
+        "description": "Display received video stream in viewer mode with audio playback",
+        "priority": "must"
+      },
+      {
+        "id": "FR-09",
+        "description": "Provide connection status indicators (connected, disconnected, connecting)",
+        "priority": "should"
+      },
+      {
+        "id": "FR-10",
+        "description": "Enable manual connection establishment via shared connection code or QR code",
+        "priority": "should"
+      },
+      {
+        "id": "FR-11",
+        "description": "Allow adjustment of cry detection sensitivity threshold",
+        "priority": "could"
+      },
+      {
+        "id": "FR-12",
+        "description": "Provide visual indicator when crying is detected on sender side",
+        "priority": "could"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-01",
+        "description": "Application must function entirely offline after initial HTML file load (no external CDN dependencies)",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-02",
+        "description": "Support modern browsers with WebRTC support (Chrome 80+, Firefox 75+, Safari 14+, Edge 80+)",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-03",
+        "description": "HTML file size must remain under 5MB for easy sharing via email/messaging",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-04",
+        "description": "Video streaming latency must not exceed 3 seconds under normal network conditions",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-05",
+        "description": "Cry detection must have <10% false positive rate and <20% false negative rate",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-06",
+        "description": "Application must request and handle camera/microphone permissions gracefully",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-07",
+        "description": "Browser notifications must work when tab is backgrounded but browser is open",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-08",
+        "description": "Connection must automatically recover from temporary network interruptions within 30 seconds",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-09",
+        "description": "UI must be responsive and usable on laptop/desktop screens (minimum 1024x768)",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-10",
+        "description": "Application must handle graceful degradation when WebRTC is not supported",
+        "priority": "should"
+      }
+    ],
+    "edgeCases": [
+      "User closes browser tab while monitoring - notifications stop, connection drops",
+      "Both peers attempt to initiate connection simultaneously",
+      "Network switches between WiFi and cellular during active session",
+      "Camera/microphone permissions denied or revoked mid-session",
+      "Multiple tabs of the application open in same browser",
+      "Browser enters sleep/power-saving mode on laptop",
+      "Firewall or NAT configuration prevents WebRTC connection establishment",
+      "Audio input contains non-crying loud noises (TV, music, other children)",
+      "Baby makes crying-like sounds while awake and playing",
+      "Notification permission denied by user",
+      "Browser tab crashes or becomes unresponsive during monitoring",
+      "Extremely poor network conditions cause continuous reconnection loops",
+      "User attempts to connect sender to multiple viewers simultaneously",
+      "Device runs out of storage while buffering media streams"
+    ]
+  },
+  "acceptanceCriteria": {
+    "criteria": [
+      {
+        "id": "AC-01",
+        "description": "User can open single HTML file in browser without internet connection and application loads successfully",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-02",
+        "description": "User can establish peer-to-peer connection between two browser instances on different devices using connection code",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-03",
+        "description": "Video stream from sender appears in viewer within 3 seconds of connection establishment",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-04",
+        "description": "Browser notification appears within 5 seconds when crying sound is detected, even when viewer tab is backgrounded",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-05",
+        "description": "User can switch between sender and viewer modes without reloading the page",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-06",
+        "description": "Application correctly requests camera and microphone permissions when entering sender mode",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-07",
+        "description": "Connection status indicator updates correctly during connect/disconnect/reconnect cycles",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-08",
+        "description": "Cry detection triggers notification for recorded baby crying samples with >80% accuracy",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-09",
+        "description": "Application displays helpful error message when WebRTC is not supported by browser",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-10",
+        "description": "HTML file size remains under 5MB when all assets are embedded",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-11",
+        "description": "Connection automatically re-establishes within 30 seconds after temporary network interruption",
+        "testable": true,
+        "priority": "P2"
+      },
+      {
+        "id": "AC-12",
+        "description": "User can adjust cry detection sensitivity and changes take effect immediately",
+        "testable": true,
+        "priority": "P2"
+      },
+      {
+        "id": "AC-13",
+        "description": "Application provides intuitive user experience for non-technical parents",
+        "testable": false,
+        "priority": "P1"
+      }
+    ],
+    "measurableOutcomes": [
+      "95% of connection attempts succeed within 10 seconds on standard home networks",
+      "Cry detection achieves <10% false positive rate and <20% false negative rate in testing",
+      "Application loads and becomes interactive within 2 seconds on modern laptops",
+      "Video streaming maintains <3 second latency in 90% of sessions",
+      "Zero external network requests after initial HTML file load"
+    ]
+  },
+  "risksAndDependencies": {
+    "internalDependencies": [
+      "WebRTC implementation and browser API compatibility",
+      "Audio analysis algorithm for cry detection",
+      "Peer connection signaling mechanism without server",
+      "Browser notification API implementation",
+      "Media stream capture and encoding logic"
+    ],
+    "externalDependencies": [
+      {
+        "name": "WebRTC browser APIs",
+        "type": "api",
+        "risk": "high"
+      },
+      {
+        "name": "Browser Notification API",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "MediaDevices getUserMedia API",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "Web Audio API for cry detection",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "User's network NAT/firewall configuration",
+        "type": "infrastructure",
+        "risk": "high"
+      },
+      {
+        "name": "Browser support for background tab notifications",
+        "type": "api",
+        "risk": "medium"
+      }
+    ],
+    "riskClassification": {
+      "score": 80,
+      "factors": [
+        "No defined goals, non-goals, or stakeholder list in original brief",
+        "Missing acceptance criteria and success metrics",
+        "No timeline, budget, or resource constraints specified",
+        "No explicit dependencies or technical constraints documented",
+        "Serverless peer-to-peer WebRTC without signaling server is technically complex",
+        "Cry detection algorithm accuracy requirements undefined",
+        "Browser compatibility and permission handling not specified",
+        "Network traversal (NAT/firewall) success rate unknown",
+        "Single HTML file constraint may limit functionality and maintainability"
+      ],
+      "mitigations": [
+        "Define explicit success metrics for cry detection accuracy",
+        "Prototype WebRTC connection establishment without signaling server early",
+        "Test across target browsers and document compatibility matrix",
+        "Implement fallback mechanisms for failed peer connections",
+        "Create test suite with real baby crying audio samples",
+        "Document network requirements and troubleshooting guide for users",
+        "Consider STUN server usage for NAT traversal while maintaining no-server goal",
+        "Establish file size budget and asset optimization strategy",
+        "Define minimum viable feature set for initial release"
+      ]
+    }
+  },
+  "deliveryIntent": {
+    "releaseScope": "mvp",
+    "rolloutExpectations": "Single HTML file distributed directly to users via file sharing, email, or download link. No deployment infrastructure required. Users self-host by opening file in browser.",
+    "timelineAssumptions": "Timeline not specified. Assumes iterative development with early prototype for WebRTC connection validation, followed by cry detection integration, then UI polish.",
+    "constraints": [
+      "Must be single self-contained HTML file with no external dependencies",
+      "Cannot use server infrastructure for signaling or relay",
+      "Must work with browser tab backgrounded but not closed",
+      "Limited to browser capabilities and APIs available in modern browsers",
+      "File size constrained by practical sharing limits (email attachments, messaging apps)"
+    ],
+    "budget": "Not specified"
+  },
+  "metadata": {
+    "confidenceMap": {
+      "initiativeCore": "inferred",
+      "requirements": "inferred",
+      "acceptanceCriteria": "inferred",
+      "risksAndDependencies": "inferred",
+      "deliveryIntent": "assumed"
+    },
+    "gaps": [
+      "No explicit goals or success criteria defined",
+      "No stakeholder list or user personas provided",
+      "No timeline or delivery milestones specified",
+      "No budget or resource allocation defined",
+      "Cry detection algorithm approach not specified (ML model, frequency analysis, etc.)",
+      "WebRTC signaling mechanism without server not detailed (manual code exchange, QR code, etc.)",
+      "Browser compatibility requirements not explicitly stated",
+      "Network requirements and NAT traversal strategy undefined",
+      "Privacy and security considerations not addressed",
+      "Testing strategy and quality metrics not defined",
+      "User documentation and support approach not specified",
+      "Accessibility requirements not mentioned",
+      "Performance benchmarks and acceptable degradation thresholds not defined",
+      "Maintenance and update distribution strategy unclear for single HTML file model"
+    ]
+  }
+}

@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Monitor - P2P Browser App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+            min-height: 600px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-bar {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+
+        .status-dot.connected {
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connecting {
+            background: #ff9800;
+            animation: pulse 1s infinite;
+        }
+
+        .status-dot.disconnected {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .cry-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #856404;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cry-indicator.active {
+            opacity: 1;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .cry-icon {
+            font-size: 1.5em;
+        }
+
+        .content-area {
+            min-height: 400px;
+        }
+
+        .idle-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .idle-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .idle-screen p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 500px;
+            object-fit: contain;
+        }
+
+        .connection-panel {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .connection-panel h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .connection-step {
+            margin-bottom: 20px;
+        }
+
+        .connection-step label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .code-display {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .sensitivity-control {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .sensitivity-control label {
+            display: block;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .instructions h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .browser-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .browser-warning h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .browser-warning p {
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👶 Baby Monitor</h1>
+            <p class="subtitle">Peer-to-Peer Browser Baby Monitoring</p>
+        </header>
+
+        <div id="browserWarning" class="browser-warning hidden">
+            <h3>⚠️ Browser Compatibility Issue</h3>
+            <p id="browserWarningText"></p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn" id="senderModeBtn" onclick="app.switchMode('sender')">
+                📹 Camera Mode (Sender)
+            </button>
+            <button class="mode-btn" id="viewerModeBtn" onclick="app.switchMode('viewer')">
+                👀 Monitor Mode (Viewer)
+            </button>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Idle</span>
+            </div>
+            <div class="cry-indicator" id="cryIndicator">
+                <span class="cry-icon">😢</span>
+                <span>Crying Detected!</span>
+            </div>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="content-area">
+            <!-- Idle Screen -->
+            <div id="idleScreen" class="idle-screen">
+                <h2>Welcome to Baby Monitor</h2>
+                <p>
+                    This is a peer-to-peer baby monitoring application that works entirely in your browser.
+                    No servers, no installation required.
+                </p>
+                <p style="margin-top: 20px;">
+                    <strong>Choose a mode above to get started:</strong><br>
+                    📹 <strong>Camera Mode</strong> - Use this device to stream video/audio from the baby's room<br>
+                    👀 <strong>Monitor Mode</strong> - Use this device to watch the stream and receive cry alerts
+                </p>
+            </div>
+
+            <!-- Sender Screen -->
+            <div id="senderScreen" class="hidden">
+                <div class="video-container">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                </div>
+
+                <div class="connection-panel">
+                    <h3>📡 Connection Setup</h3>
+                    
+                    <div class="connection-step">
+                        <label>Step 1: Your Connection Code (Share this with the viewer)</label>
+                        <div class="code-display" id="offerCode">Initializing...</div>
+                        <button class="btn btn-primary" onclick="app.copyOffer()">📋 Copy Code</button>
+                    </div>
+
+                    <div class="connection-step">
+                        <label>Step 2: Paste the Answer Code from Viewer</label>
+                        <textarea class="code-input" id="answerInput" placeholder="Paste the answer code from the viewer here..."></textarea>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="app.setAnswer()">✅ Connect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensitivity-control">
+                    <label>🔊 Cry Detection Sensitivity</label>
+                    <div class="slider-container">
+                        <span>Low</span>
+                        <input type="range" min="1" max="10" value="7" class="slider" id="senderSensitivity" onchange="app.updateSensitivity(this.value)">
+                        <span>High</span>
+                        <span class="slider-value" id="senderSensitivityValue">7</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Viewer Screen -->
+            <div id="viewerScreen" class="hidden">
+                <div class="video-container hidden" id="remoteVideoContainer">
+                    <video id="remoteVideo" autoplay playsinline controls></video>
+                </div>
+
+                <div class="loading" id="viewerLoading">
+                    <div class="spinner"></div>
+                    <p>Waiting for connection...</p>
+                </div>
+
+                <div class="connection-panel">
+                    <h3>📡 Connection Setup</h3>
+                    
+                    <div class="connection-step">
+                        <label>Step 1: Paste the Offer Code from Camera</label>
+                        <textarea class="code-input" id="offerInput" placeholder="Paste the offer code from the camera here..."></textarea>
+                        <button class="btn btn-primary" onclick="app.processOffer()">📥 Process Offer</button>
+                    </div>
+
+                    <div class="connection-step">
+                        <label>Step 2: Your Answer Code (Share this back to the camera)</label>
+                        <div class="code-display" id="answerCode">Waiting for offer...</div>
+                        <button class="btn btn-primary" id="copyAnswerBtn" onclick="app.copyAnswer()" disabled>📋 Copy Answer</button>
+                    </div>
+                </div>
+
+                <div class="sensitivity-control">
+                    <label>🔊 Cry Detection Sensitivity</label>
+                    <div class="slider-container">
+                        <span>Low</span>
+                        <input type="range" min="1" max="10" value="7" class="slider" id="viewerSensitivity" onchange="app.updateSensitivity(this.value)">
+                        <span>High</span>
+                        <span class="slider-value" id="viewerSensitivityValue">7</span>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h4>📱 Notification Setup</h4>
+                    <ol>
+                        <li>Make sure you've granted notification permissions when prompted</li>
+                        <li>Keep this browser window open (you can minimize or switch tabs)</li>
+                        <li>You'll receive notifications when crying is detected, even when this tab is in the background</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main Application State and Logic
+        const app = {
+            mode: 'idle',
+            peerConnection: null,
+            localStream: null,
+            remoteStream: null,
+            audioContext: null,
+            analyser: null,
+            sensitivity: 7,
+            cryDetectionActive: false,
+            lastCryTime: 0,
+            notificationPermission: false,
+            connectionState: 'idle',
+
+            // Initialize the application
+            init() {
+                this.checkBrowserSupport();
+                this.loadSensitivity();
+                this.updateUI();
+            },
+
+            // Check browser compatibility
+            checkBrowserSupport() {
+                const warnings = [];
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    warnings.push('Your browser does not support camera/microphone access (getUserMedia).');
+                }
+
+                if (!window.RTCPeerConnection) {
+                    warnings.push('Your browser does not support WebRTC peer connections.');
+                }
+
+                if (!window.AudioContext && !window.webkitAudioContext) {
+                    warnings.push('Your browser does not support Web Audio API for cry detection.');
+                }
+
+                if (warnings.length > 0) {
+                    const warningEl = document.getElementById('browserWarning');
+                    const warningText = document.getElementById('browserWarningText');
+                    warningText.innerHTML = warnings.join('<br>') + '<br><br>Please use Chrome 80+, Firefox 75+, Safari 14+, or Edge 80+.';
+                    warningEl.classList.remove('hidden');
+                }
+            },
+
+            // Switch between modes
+            async switchMode(newMode) {
+                if (this.mode === newMode) return;
+
+                // Cleanup previous mode
+                this.cleanup();
+
+                this.mode = newMode;
+                this.updateUI();
+
+                if (newMode === 'sender') {
+                    await this.initSenderMode();
+                } else if (newMode === 'viewer') {
+                    await this.initViewerMode();
+                }
+            },
+
+            // Initialize sender mode
+            async initSenderMode() {
+                try {
+                    this.updateStatus('connecting', 'Requesting camera access...');
+
+                    // Request camera and microphone access
+                    this.localStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: true
+                    });
+
+                    // Display local video
+                    const localVideo = document.getElementById('localVideo');
+                    localVideo.srcObject = this.localStream;
+
+                    // Initialize peer connection
+                    this.initPeerConnection();
+
+                    // Add tracks to peer connection
+                    this.localStream.getTracks().forEach(track => {
+                        this.peerConnection.addTrack(track, this.localStream);
+                    });
+
+                    // Create offer
+                    const offer = await this.peerConnection.createOffer();
+                    await this.peerConnection.setLocalDescription(offer);
+
+                    // Display offer code
+                    const offerCode = btoa(JSON.stringify(offer));
+                    document.getElementById('offerCode').textContent = offerCode;
+
+                    // Initialize cry detection on sender
+                    this.initCryDetection(this.localStream);
+
+                    this.updateStatus('disconnected', 'Waiting for viewer to connect...');
+                    this.showAlert('Camera access granted. Share your connection code with the viewer.', 'success');
+
+                } catch (error) {
+                    console.error('Error initializing sender mode:', error);
+                    this.showAlert('Failed to access camera/microphone: ' + error.message, 'error');
+                    this.updateStatus('disconnected', 'Camera access denied');
+                }
+            },
+
+            // Initialize viewer mode
+            async initViewerMode() {
+                this.updateStatus('disconnected', 'Waiting for connection...');
+
+                // Request notification permission
+                if ('Notification' in window && Notification.permission === 'default') {
+                    try {
+                        const permission = await Notification.requestPermission();
+                        this.notificationPermission = permission === 'granted';
+                        
+                        if (this.notificationPermission) {
+                            this.showAlert('Notification permission granted. You will receive alerts when crying is detected.', 'success');
+                        } else {
+                            this.showAlert('Notification permission denied. You must keep this tab visible to see cry alerts.', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('Error requesting notification permission:', error);
+                    }
+                } else if ('Notification' in window && Notification.permission === 'granted') {
+                    this.notificationPermission = true;
+                }
+
+                // Initialize peer connection
+                this.initPeerConnection();
+            },
+
+            // Initialize WebRTC peer connection
+            initPeerConnection() {
+                // No STUN/TURN servers - local network only per ADR-004
+                const configuration = {
+                    iceServers: []
+                };
+
+                this.peerConnection = new RTCPeerConnection(configuration);
+
+                // Handle ICE candidates
+                this.peerConnection.onicecandidate = (event) => {
+                    // ICE candidates are included in the SDP, no separate exchange needed
+                };
+
+                // Handle connection state changes
+                this.peerConnection.onconnectionstatechange = () => {
+                    const state = this.peerConnection.connectionState;
+                    console.log('Connection state:', state);
+
+                    if (state === 'connected') {
+                        this.updateStatus('connected', 'Connected');
+                        this.showAlert('Peer connection established successfully!', 'success');
+                    } else if (state === 'disconnected' || state === 'failed') {
+                        this.updateStatus('disconnected', 'Disconnected');
+                        
+                        if (state === 'failed') {
+                            this.showAlert(
+                                'Connection failed. This may be due to NAT/firewall restrictions. ' +
+                                'Make sure both devices are on the same local network (same WiFi). ' +
+                                'If the problem persists, try restarting both browser instances.',
+                                'error'
+                            );
+                        }
+                    } else if (state === 'connecting') {
+                        this.updateStatus('connecting', 'Connecting...');
+                    }
+                };
+
+                // Handle incoming tracks (viewer side)
+                this.peerConnection.ontrack = (event) => {
+                    console.log('Received remote track:', event.track.kind);
+                    
+                    if (!this.remoteStream) {
+                        this.remoteStream = new MediaStream();
+                        const remoteVideo = document.getElementById('remoteVideo');
+                        remoteVideo.srcObject = this.remoteStream;
+                        
+                        // Show video container, hide loading
+                        document.getElementById('remoteVideoContainer').classList.remove('hidden');
+                        document.getElementById('viewerLoading').classList.add('hidden');
+                    }
+
+                    this.remoteStream.addTrack(event.track);
+
+                    // Initialize cry detection on viewer when audio track received
+                    if (event.track.kind === 'audio' && !this.cryDetectionActive) {
+                        this.initCryDetection(this.remoteStream);
+                    }
+                };
+
+                // Handle ICE connection state
+                this.peerConnection.oniceconnectionstatechange = () => {
+                    console.log('ICE connection state:', this.peerConnection.iceConnectionState);
+                };
+            },
+
+            // Process offer (viewer side)
+            async processOffer() {
+                const offerInput = document.getElementById('offerInput').value.trim();
+                
+                if (!offerInput) {
+                    this.showAlert('Please paste the offer code from the camera.', 'warning');
+                    return;
+                }
+
+                try {
+                    const offer = JSON.parse(atob(offerInput));
+                    await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+                    const answer = await this.peerConnection.createAnswer();
+                    await this.peerConnection.setLocalDescription(answer);
+
+                    const answerCode = btoa(JSON.stringify(answer));
+                    document.getElementById('answerCode').textContent = answerCode;
+                    document.getElementById('copyAnswerBtn').disabled = false;
+
+                    this.showAlert('Offer processed. Copy the answer code and send it back to the camera.', 'info');
+
+                } catch (error) {
+                    console.error('Error processing offer:', error);
+                    this.showAlert('Invalid offer code. Please check and try again.', 'error');
+                }
+            },
+
+            // Set answer (sender side)
+            async setAnswer() {
+                const answerInput = document.getElementById('answerInput').value.trim();
+                
+                if (!answerInput) {
+                    this.showAlert('Please paste the answer code from the viewer.', 'warning');
+                    return;
+                }
+
+                try {
+                    const answer = JSON.parse(atob(answerInput));
+                    await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+
+                    this.showAlert('Connection established! Waiting for peer confirmation...', 'success');
+
+                } catch (error) {
+                    console.error('Error setting answer:', error);
+                    this.showAlert('Invalid answer code. Please check and try again.', 'error');
+                }
+            },
+
+            // Copy offer code
+            copyOffer() {
+                const offerCode = document.getElementById('offerCode').textContent;
+                this.copyToClipboard(offerCode, 'Offer code copied to clipboard!');
+            },
+
+            // Copy answer code
+            copyAnswer() {
+                const answerCode = document.getElementById('answerCode').textContent;
+                this.copyToClipboard(answerCode, 'Answer code copied to clipboard!');
+            },
+
+            // Copy to clipboard helper
+            copyToClipboard(text, successMessage) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.showAlert(successMessage, 'success');
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        this.fallbackCopy(text, successMessage);
+                    });
+                } else {
+                    this.fallbackCopy(text, successMessage);
+                }
+            },
+
+            // Fallback copy method
+            fallbackCopy(text, successMessage) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    this.showAlert(successMessage, 'success');
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                    this.showAlert('Failed to copy. Please select and copy manually.', 'warning');
+                }
+                
+                document.body.removeChild(textarea);
+            },
+
+            // Initialize cry detection
+            initCryDetection(stream) {
+                try {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    this.audioContext = new AudioContextClass();
+                    
+                    const source = this.audioContext.createMediaStreamSource(stream);
+                    this.analyser = this.audioContext.createAnalyser();
+                    
+                    this.analyser.fftSize = 2048;
+                    this.analyser.smoothingTimeConstant = 0.8;
+                    
+                    source.connect(this.analyser);
+                    
+                    this.cryDetectionActive = true;
+                    this.detectCrying();
+
+                    console.log('Cry detection initialized');
+
+                } catch (error) {
+                    console.error('Error initializing cry detection:', error);
+                }
+            },
+
+            // Cry detection algorithm
+            detectCrying() {
+                if (!this.cryDetectionActive || !this.analyser) return;
+
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                this.analyser.getByteFrequencyData(dataArray);
+
+                // Calculate sample rate and frequency resolution
+                const sampleRate = this.audioContext.sampleRate;
+                const frequencyResolution = sampleRate / this.analyser.fftSize;
+
+                // Baby crying typically in 300-600Hz range
+                const minFreq = 300;
+                const maxFreq = 600;
+                const minBin = Math.floor(minFreq / frequencyResolution);
+                const maxBin = Math.floor(maxFreq / frequencyResolution);
+
+                // Calculate average amplitude in crying frequency range
+                let sum = 0;
+                let count = 0;
+                for (let i = minBin; i <= maxBin && i < bufferLength; i++) {
+                    sum += dataArray[i];
+                    count++;
+                }
+                const avgAmplitude = count > 0 ? sum / count : 0;
+
+                // Calculate overall amplitude
+                const overallSum = dataArray.reduce((a, b) => a + b, 0);
+                const overallAvg = overallSum / bufferLength;
+
+                // Sensitivity-based threshold (1-10 scale, higher = more sensitive)
+                // Base threshold at 100, reduced by sensitivity
+                const baseThreshold = 100;
+                const sensitivityFactor = (11 - this.sensitivity) / 10; // 1.0 to 0.1
+                const threshold = baseThreshold * sensitivityFactor;
+
+                // Detect crying if amplitude in target range exceeds threshold
+                // and is significantly higher than overall average
+                const isCrying = avgAmplitude > threshold && avgAmplitude > overallAvg * 1.5;
+
+                if (isCrying) {
+                    this.onCryDetected();
+                }
+
+                // Continue detection loop
+                requestAnimationFrame(() => this.detectCrying());
+            },
+
+            // Handle cry detection event
+            onCryDetected() {
+                const now = Date.now();
+                
+                // Debounce: only trigger once every 5 seconds
+                if (now - this.lastCryTime < 5000) {
+                    return;
+                }
+
+                this.lastCryTime = now;
+
+                console.log('Crying detected!');
+
+                // Show visual indicator
+                const indicator = document.getElementById('cryIndicator');
+                indicator.classList.add('active');
+                setTimeout(() => {
+                    indicator.classList.remove('active');
+                }, 3000);
+
+                // Send notification if in viewer mode
+                if (this.mode === 'viewer' && this.notificationPermission) {
+                    this.sendNotification();
+                }
+            },
+
+            // Send browser notification
+            sendNotification() {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try {
+                        const notification = new Notification('👶 Baby Crying Detected!', {
+                            body: 'Your baby may need attention.',
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">👶</text></svg>',
+                            tag: 'baby-cry',
+                            requireInteraction: false,
+                            silent: false
+                        });
+
+                        notification.onclick = () => {
+                            window.focus();
+                            notification.close();
+                        };
+
+                        // Auto-close after 10 seconds
+                        setTimeout(() => notification.close(), 10000);
+
+                    } catch (error) {
+                        console.error('Error sending notification:', error);
+                    }
+                }
+            },
+
+            // Update sensitivity
+            updateSensitivity(value) {
+                this.sensitivity = parseInt(value);
+                document.getElementById('senderSensitivityValue').textContent = value;
+                document.getElementById('viewerSensitivityValue').textContent = value;
+                
+                // Save to localStorage
+                try {
+                    localStorage.setItem('babyCrySensitivity', value);
+                } catch (e) {
+                    console.error('Failed to save sensitivity:', e);
+                }
+            },
+
+            // Load sensitivity from localStorage
+            loadSensitivity() {
+                try {
+                    const saved = localStorage.getItem('babyCrySensitivity');
+                    if (saved) {
+                        this.sensitivity = parseInt(saved);
+                        document.getElementById('senderSensitivity').value = saved;
+                        document.getElementById('viewerSensitivity').value = saved;
+                        document.getElementById('senderSensitivityValue').textContent = saved;
+                        document.getElementById('viewerSensitivityValue').textContent = saved;
+                    }
+                } catch (e) {
+                    console.error('Failed to load sensitivity:', e);
+                }
+            },
+
+            // Update status indicator
+            updateStatus(state, text) {
+                this.connectionState = state;
+                const dot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+
+                dot.className = 'status-dot ' + state;
+                statusText.textContent = text;
+            },
+
+            // Show alert message
+            showAlert(message, type) {
+                const container = document.getElementById('alertContainer');
+                
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} show`;
+                alert.textContent = message;
+                
+                container.innerHTML = '';
+                container.appendChild(alert);
+
+                // Auto-hide after 5 seconds for success/info
+                if (type === 'success' || type === 'info') {
+                    setTimeout(() => {
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.remove(), 300);
+                    }, 5000);
+                }
+            },
+
+            // Update UI based on current mode
+            updateUI() {
+                // Update mode buttons
+                document.getElementById('senderModeBtn').classList.toggle('active', this.mode === 'sender');
+                document.getElementById('viewerModeBtn').classList.toggle('active', this.mode === 'viewer');
+
+                // Show/hide screens
+                document.getElementById('idleScreen').classList.toggle('hidden', this.mode !== 'idle');
+                document.getElementById('senderScreen').classList.toggle('hidden', this.mode !== 'sender');
+                document.getElementById('viewerScreen').classList.toggle('hidden', this.mode !== 'viewer');
+
+                // Disable mode switching while connected
+                const isConnected = this.connectionState === 'connected' || this.connectionState === 'connecting';
+                document.getElementById('senderModeBtn').disabled = isConnected && this.mode !== 'sender';
+                document.getElementById('viewerModeBtn').disabled = isConnected && this.mode !== 'viewer';
+            },
+
+            // Cleanup resources
+            cleanup() {
+                // Stop cry detection
+                this.cryDetectionActive = false;
+
+                // Close audio context
+                if (this.audioContext) {
+                    this.audioContext.close();
+                    this.audioContext = null;
+                }
+
+                this.analyser = null;
+
+                // Stop local stream
+                if (this.localStream) {
+                    this.localStream.getTracks().forEach(track => track.stop());
+                    this.localStream = null;
+                }
+
+                // Clear remote stream
+                if (this.remoteStream) {
+                    this.remoteStream.getTracks().forEach(track => track.stop());
+                    this.remoteStream = null;
+                }
+
+                // Close peer connection
+                if (this.peerConnection) {
+                    this.peerConnection.close();
+                    this.peerConnection = null;
+                }
+
+                // Reset UI
+                const localVideo = document.getElementById('localVideo');
+                const remoteVideo = document.getElementById('remoteVideo');
+                if (localVideo) localVideo.srcObject = null;
+                if (remoteVideo) remoteVideo.srcObject = null;
+
+                // Clear connection codes
+                document.getElementById('offerCode').textContent = 'Initializing...';
+                document.getElementById('answerCode').textContent = 'Waiting for offer...';
+                document.getElementById('offerInput').value = '';
+                document.getElementById('answerInput').value = '';
+                document.getElementById('copyAnswerBtn').disabled = true;
+
+                // Hide remote video container
+                document.getElementById('remoteVideoContainer').classList.add('hidden');
+                document.getElementById('viewerLoading').classList.remove('hidden');
+
+                // Reset status
+                this.updateStatus('idle', 'Idle');
+
+                // Clear alerts
+                document.getElementById('alertContainer').innerHTML = '';
+            }
+        };
+
+        // Initialize app when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            app.cleanup();
+        });
+    </script>
+</body>
+</html>
