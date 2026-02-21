@@ -1,0 +1,387 @@
+{
+  "version": "1.0",
+  "initiativeCore": {
+    "problemStatement": "Parents need a simple, zero-infrastructure baby monitoring solution that works entirely in the browser without requiring server setup, app installation, or keeping the browser tab in focus, enabling real-time video streaming and cry detection notifications between devices.",
+    "goals": [
+      "Enable peer-to-peer video streaming between browser instances without server infrastructure",
+      "Detect baby crying and send browser notifications when the monitoring tab is open but not in focus",
+      "Deliver the entire application as a single self-contained HTML file requiring no installation",
+      "Support dual-mode operation where any instance can act as camera (sender) or viewer (receiver)",
+      "Deliver working prototype within 1 day timeline"
+    ],
+    "nonGoals": [
+      "Cloud recording or storage of video streams",
+      "Mobile native app development",
+      "Multi-room monitoring with multiple camera sources",
+      "Historical playback of monitoring sessions",
+      "User authentication or account management",
+      "Production-ready cry detection algorithm optimization",
+      "Comprehensive NAT traversal solutions requiring infrastructure changes"
+    ],
+    "businessImpact": "Success enables parents to repurpose existing devices as baby monitors without purchasing dedicated hardware or subscribing to cloud services, reducing barrier to entry. Failure results in continued reliance on expensive dedicated baby monitors or inadequate smartphone solutions requiring constant screen attention. 1-day timeline constrains scope to rapid prototype demonstrating core feasibility.",
+    "stakeholders": "Parents with infants/toddlers, caregivers, technical users comfortable with browser-based tools"
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "FR-01",
+        "description": "Application must be deliverable as a single HTML file with all dependencies embedded (CSS, JavaScript, assets)",
+        "priority": "must"
+      },
+      {
+        "id": "FR-02",
+        "description": "Establish peer-to-peer WebRTC connection between two browser instances using manual connection code exchange",
+        "priority": "must"
+      },
+      {
+        "id": "FR-03",
+        "description": "Capture video and audio from device camera/microphone in sender mode",
+        "priority": "must"
+      },
+      {
+        "id": "FR-04",
+        "description": "Stream captured media to connected peer in real-time with acceptable latency (<3 seconds)",
+        "priority": "must"
+      },
+      {
+        "id": "FR-05",
+        "description": "Detect crying sounds from audio stream on both sender and viewer sides using client-side audio analysis",
+        "priority": "must"
+      },
+      {
+        "id": "FR-06",
+        "description": "Send browser notifications when crying is detected on viewer side, even when tab is not in focus, prioritizing detection over false positive minimization",
+        "priority": "must"
+      },
+      {
+        "id": "FR-07",
+        "description": "Allow user to toggle between sender (camera) and viewer (monitor) modes within the same application",
+        "priority": "must"
+      },
+      {
+        "id": "FR-08",
+        "description": "Display received video stream in viewer mode with audio playback",
+        "priority": "must"
+      },
+      {
+        "id": "FR-09",
+        "description": "Provide connection status indicators (connected, disconnected, connecting)",
+        "priority": "should"
+      },
+      {
+        "id": "FR-10",
+        "description": "Enable manual connection establishment via shared connection code (SDP offer/answer exchange)",
+        "priority": "must"
+      },
+      {
+        "id": "FR-11",
+        "description": "Allow adjustment of cry detection sensitivity threshold",
+        "priority": "could"
+      },
+      {
+        "id": "FR-12",
+        "description": "Provide visual indicator when crying is detected on both sender and viewer sides",
+        "priority": "should"
+      },
+      {
+        "id": "FR-13",
+        "description": "Display clear error message when WebRTC connection cannot be established due to NAT/firewall restrictions, explaining that network configuration prevents direct peer connection",
+        "priority": "must"
+      },
+      {
+        "id": "FR-14",
+        "description": "Provide instructions for workaround when direct connection fails (e.g., connecting devices to same local network)",
+        "priority": "should"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-01",
+        "description": "Application must function entirely offline after initial HTML file load (no external CDN dependencies)",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-02",
+        "description": "Support modern browsers with WebRTC support (Chrome 80+, Firefox 75+, Safari 14+, Edge 80+)",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-03",
+        "description": "HTML file size must remain under 5MB for easy sharing via email/messaging",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-04",
+        "description": "Video streaming latency must not exceed 3 seconds under normal network conditions",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-05",
+        "description": "Cry detection should prioritize sensitivity (minimize false negatives) over precision, accepting higher false positive rate as acceptable tradeoff",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-06",
+        "description": "Application must request and handle camera/microphone permissions gracefully",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-07",
+        "description": "Browser notifications must work when tab is backgrounded but browser is open",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-08",
+        "description": "Connection must automatically recover from temporary network interruptions within 30 seconds",
+        "priority": "could"
+      },
+      {
+        "id": "NFR-09",
+        "description": "UI must be responsive and usable on laptop/desktop screens (minimum 1024x768)",
+        "priority": "should"
+      },
+      {
+        "id": "NFR-10",
+        "description": "Application must handle graceful degradation when WebRTC is not supported",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-11",
+        "description": "WebRTC connection must work on same local network without STUN/TURN servers for 1-day prototype scope",
+        "priority": "must"
+      },
+      {
+        "id": "NFR-12",
+        "description": "Cry detection algorithm must be testable with publicly available baby crying audio samples",
+        "priority": "must"
+      }
+    ],
+    "edgeCases": [
+      "User closes browser tab while monitoring - notifications stop, connection drops",
+      "Both peers attempt to initiate connection simultaneously",
+      "Network switches between WiFi and cellular during active session",
+      "Camera/microphone permissions denied or revoked mid-session",
+      "Multiple tabs of the application open in same browser",
+      "Browser enters sleep/power-saving mode on laptop",
+      "Firewall or NAT configuration prevents WebRTC connection establishment - must display clear error and workaround",
+      "Audio input contains non-crying loud noises (TV, music, other children) - acceptable false positives",
+      "Baby makes crying-like sounds while awake and playing - acceptable false positives",
+      "Notification permission denied by user",
+      "Browser tab crashes or becomes unresponsive during monitoring",
+      "Extremely poor network conditions cause continuous reconnection loops",
+      "User attempts to connect sender to multiple viewers simultaneously",
+      "Device runs out of storage while buffering media streams",
+      "Peers on different networks without direct connectivity path",
+      "Copy-paste errors when manually exchanging connection codes",
+      "Connection codes expire or become invalid during exchange process",
+      "Cry detection runs on both sender and viewer simultaneously, potentially doubling notifications"
+    ]
+  },
+  "acceptanceCriteria": {
+    "criteria": [
+      {
+        "id": "AC-01",
+        "description": "User can open single HTML file in browser without internet connection and application loads successfully",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-02",
+        "description": "User can establish peer-to-peer connection between two browser instances on same local network using manual SDP offer/answer exchange",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-03",
+        "description": "Video stream from sender appears in viewer within 3 seconds of connection establishment on local network",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-04",
+        "description": "Browser notification appears within 5 seconds when crying sound is detected on viewer side, even when viewer tab is backgrounded",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-05",
+        "description": "User can switch between sender and viewer modes without reloading the page",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-06",
+        "description": "Application correctly requests camera and microphone permissions when entering sender mode",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-07",
+        "description": "Connection status indicator updates correctly during connect/disconnect cycles",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-08",
+        "description": "Cry detection triggers notification for publicly available baby crying audio samples with high sensitivity (prioritizing detection over false positive reduction)",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-09",
+        "description": "Application displays helpful error message when WebRTC is not supported by browser",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-10",
+        "description": "HTML file size remains under 5MB when all assets are embedded",
+        "testable": true,
+        "priority": "P1"
+      },
+      {
+        "id": "AC-11",
+        "description": "Application displays clear error message when NAT/firewall prevents connection, explaining the limitation and suggesting local network workaround",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-12",
+        "description": "Cry detection runs on both sender and viewer sides simultaneously without causing application errors",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-13",
+        "description": "User can copy connection code from sender and paste into viewer to establish connection",
+        "testable": true,
+        "priority": "P0"
+      },
+      {
+        "id": "AC-14",
+        "description": "Application provides intuitive user experience for non-technical parents within prototype constraints",
+        "testable": false,
+        "priority": "P2"
+      }
+    ],
+    "measurableOutcomes": [
+      "100% of connection attempts succeed within 10 seconds on same local network",
+      "Cry detection achieves high recall (>80%) with publicly available baby crying samples, accepting higher false positive rate",
+      "Application loads and becomes interactive within 2 seconds on modern laptops",
+      "Video streaming maintains <3 second latency on local network connections",
+      "Zero external network requests after initial HTML file load",
+      "Working prototype demonstrating core functionality delivered within 1 day"
+    ]
+  },
+  "risksAndDependencies": {
+    "internalDependencies": [
+      "WebRTC implementation and browser API compatibility",
+      "Audio analysis algorithm for cry detection using publicly available test samples",
+      "Manual peer connection signaling via SDP offer/answer exchange",
+      "Browser notification API implementation",
+      "Media stream capture and encoding logic"
+    ],
+    "externalDependencies": [
+      {
+        "name": "WebRTC browser APIs",
+        "type": "api",
+        "risk": "high"
+      },
+      {
+        "name": "Browser Notification API",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "MediaDevices getUserMedia API",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "Web Audio API for cry detection",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "User's network NAT/firewall configuration - local network required for 1-day prototype",
+        "type": "infrastructure",
+        "risk": "high"
+      },
+      {
+        "name": "Browser support for background tab notifications",
+        "type": "api",
+        "risk": "medium"
+      },
+      {
+        "name": "Publicly available baby crying audio samples for testing",
+        "type": "data",
+        "risk": "low"
+      }
+    ],
+    "riskClassification": {
+      "score": 75,
+      "factors": [
+        "1-day timeline severely constrains scope and testing",
+        "WebRTC without STUN/TURN servers limits to local network only",
+        "NAT/firewall traversal explicitly out of scope - connection will fail across networks",
+        "Manual SDP exchange is error-prone and not user-friendly",
+        "Cry detection algorithm will be basic prototype without ML optimization",
+        "Running cry detection on both sides may cause duplicate notifications",
+        "No time for comprehensive browser compatibility testing",
+        "Limited time for cry detection accuracy tuning",
+        "Single HTML file constraint limits debugging and iteration speed"
+      ],
+      "mitigations": [
+        "Scope limited to local network connections only for 1-day prototype",
+        "Clear error messaging when connection fails due to network restrictions",
+        "Document workaround: connect both devices to same WiFi network",
+        "Use simple frequency/amplitude analysis for cry detection rather than ML",
+        "Test with publicly available baby crying audio samples from online sources",
+        "Accept higher false positive rate to ensure cry detection sensitivity",
+        "Focus on Chrome browser for initial prototype, document other browser limitations",
+        "Provide clear copy-paste interface for SDP offer/answer exchange",
+        "Include connection troubleshooting guide in UI",
+        "Prioritize core functionality over polish given timeline constraint"
+      ]
+    }
+  },
+  "deliveryIntent": {
+    "releaseScope": "mvp",
+    "rolloutExpectations": "Single HTML file distributed directly to users via file sharing, email, or download link. No deployment infrastructure required. Users self-host by opening file in browser. Initial prototype limited to local network connections only. Users must connect both devices to same WiFi network for peer connection to succeed.",
+    "timelineAssumptions": "1-day rapid prototype timeline. Focus on demonstrating core feasibility: WebRTC connection establishment, video streaming, and basic cry detection. Limited time for polish, comprehensive testing, or advanced features. Manual SDP exchange acceptable for prototype. NAT traversal solutions explicitly deferred.",
+    "constraints": [
+      "Must be single self-contained HTML file with no external dependencies",
+      "Cannot use server infrastructure for signaling or relay",
+      "Must work with browser tab backgrounded but not closed",
+      "Limited to browser capabilities and APIs available in modern browsers",
+      "File size constrained by practical sharing limits (email attachments, messaging apps)",
+      "1-day timeline limits scope to core functionality prototype",
+      "WebRTC connection limited to same local network without STUN/TURN servers",
+      "Manual SDP offer/answer exchange required for connection establishment",
+      "Cry detection tested only with publicly available audio samples",
+      "No time for production-grade error handling or edge case coverage"
+    ],
+    "budget": "Not specified - assumes single developer 1-day effort"
+  },
+  "metadata": {
+    "confidenceMap": {
+      "initiativeCore": "confirmed",
+      "requirements": "confirmed",
+      "acceptanceCriteria": "confirmed",
+      "risksAndDependencies": "confirmed",
+      "deliveryIntent": "confirmed"
+    },
+    "gaps": [
+      "Specific cry detection algorithm approach not defined (frequency analysis, amplitude thresholds, etc.)",
+      "Browser compatibility testing strategy for 1-day timeline unclear",
+      "User documentation approach not specified",
+      "Privacy and security considerations not addressed",
+      "Accessibility requirements not mentioned",
+      "Post-prototype iteration plan undefined",
+      "Distribution mechanism for HTML file not specified",
+      "Support approach for users experiencing connection issues unclear",
+      "Criteria for graduating from prototype to production version not defined",
+      "Long-term maintenance strategy for single HTML file model unclear"
+    ]
+  }
+}

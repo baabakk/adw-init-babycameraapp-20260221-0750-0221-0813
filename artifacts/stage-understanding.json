@@ -1,0 +1,102 @@
+{
+  "version": "1.0",
+  "summary": "Build a browser-based baby monitor that works as a single HTML file, enabling peer-to-peer video streaming between devices on the same local network with cry detection notifications. Parents can use any two devices with browsers as a zero-cost baby monitor without installing apps or setting up servers, with a working prototype delivered in 1 day.",
+  "assumptions": [
+    {
+      "id": "A-01",
+      "text": "Both devices must be on the same local WiFi network for WebRTC connection to succeed, as STUN/TURN servers are out of scope"
+    },
+    {
+      "id": "A-02",
+      "text": "Users are comfortable manually copying and pasting connection codes between devices to establish the peer connection"
+    },
+    {
+      "id": "A-03",
+      "text": "Higher false positive rate for cry detection is acceptable to ensure we don't miss actual crying (prioritizing sensitivity over precision)"
+    },
+    {
+      "id": "A-04",
+      "text": "Users will keep the browser open (though tab can be backgrounded) for monitoring to work - closing the browser stops all monitoring"
+    },
+    {
+      "id": "A-05",
+      "text": "One-to-one connection model is sufficient (one camera device streaming to one viewer device at a time)"
+    }
+  ],
+  "requirementsInterpreted": [
+    {
+      "id": "R-01",
+      "text": "The entire application must be delivered as a single HTML file under 5MB with all JavaScript, CSS, and assets embedded inline"
+    },
+    {
+      "id": "R-02",
+      "text": "Users establish connection by manually exchanging WebRTC SDP offer/answer codes between sender and viewer devices"
+    },
+    {
+      "id": "R-03",
+      "text": "Video and audio stream from the camera device to the viewer device with less than 3 seconds latency on local network"
+    },
+    {
+      "id": "R-04",
+      "text": "Cry detection runs on both sender and viewer sides using client-side audio analysis, triggering browser notifications on the viewer even when the tab is backgrounded"
+    },
+    {
+      "id": "R-05",
+      "text": "Users can toggle the same application instance between sender mode (camera) and viewer mode (monitor) without reloading"
+    },
+    {
+      "id": "R-06",
+      "text": "When WebRTC connection fails due to NAT/firewall, display clear error explaining the limitation and suggest connecting both devices to the same WiFi network"
+    },
+    {
+      "id": "R-07",
+      "text": "Application must work completely offline after the initial HTML file is loaded, with no external CDN or API dependencies"
+    }
+  ],
+  "outOfScope": [
+    {
+      "id": "OS-01",
+      "text": "Cloud recording, storage, or historical playback of monitoring sessions"
+    },
+    {
+      "id": "OS-02",
+      "text": "STUN/TURN server infrastructure for NAT traversal - connections only work on same local network"
+    },
+    {
+      "id": "OS-03",
+      "text": "User authentication, accounts, or multi-user access control"
+    },
+    {
+      "id": "OS-04",
+      "text": "Mobile native apps or mobile-optimized responsive design"
+    },
+    {
+      "id": "OS-05",
+      "text": "Production-grade cry detection algorithm with machine learning optimization"
+    },
+    {
+      "id": "OS-06",
+      "text": "Multi-room monitoring with multiple simultaneous camera sources"
+    }
+  ],
+  "openQuestions": [],
+  "riskFlags": [
+    {
+      "id": "RF-01",
+      "text": "1-day timeline severely limits testing, polish, and edge case handling - this is explicitly a rapid prototype to demonstrate feasibility"
+    },
+    {
+      "id": "RF-02",
+      "text": "WebRTC connections will fail when devices are on different networks or behind restrictive firewalls - users must connect to same WiFi"
+    },
+    {
+      "id": "RF-03",
+      "text": "Manual SDP code exchange is error-prone and not user-friendly, but necessary without signaling server infrastructure"
+    },
+    {
+      "id": "RF-04",
+      "text": "Cry detection algorithm will be basic prototype-level without ML, tested only against publicly available audio samples"
+    }
+  ],
+  "needsClarification": false
+}

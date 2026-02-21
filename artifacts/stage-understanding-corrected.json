@@ -1,0 +1,122 @@
+{
+  "version": "1.0",
+  "summary": "This initiative delivers a serverless baby monitor as a single HTML file that enables peer-to-peer video streaming between browser tabs. Parents can use any two devices (laptops, tablets) where one acts as the camera monitoring the baby and the other displays the live feed, with automatic cry detection triggering browser notifications even when the monitoring tab is backgrounded.",
+  "assumptions": [
+    {
+      "id": "A-01",
+      "text": "Manual connection establishment (via shared code or QR code) is acceptable since serverless WebRTC requires out-of-band signaling exchange between peers"
+    },
+    {
+      "id": "A-02",
+      "text": "One-to-one connection model is sufficient (one camera device streams to one viewer device at a time)"
+    },
+    {
+      "id": "A-03",
+      "text": "Users will keep both browser tabs open during monitoring sessions, as closing the tab terminates the connection"
+    },
+    {
+      "id": "A-04",
+      "text": "Cry detection will use frequency/amplitude analysis rather than ML models to keep the HTML file size under 5MB"
+    },
+    {
+      "id": "A-05",
+      "text": "STUN servers may be used for NAT traversal while maintaining the 'no server infrastructure' goal, since STUN is a standard WebRTC component for peer discovery"
+    }
+  ],
+  "requirementsInterpreted": [
+    {
+      "id": "R-01",
+      "text": "The entire application must be a single HTML file with embedded CSS, JavaScript, and assets that works offline after initial load"
+    },
+    {
+      "id": "R-02",
+      "text": "Two browser instances must establish a peer-to-peer WebRTC connection without a signaling server, requiring manual exchange of connection information"
+    },
+    {
+      "id": "R-03",
+      "text": "The camera device captures video/audio and streams it to the viewer device with under 3 seconds of latency"
+    },
+    {
+      "id": "R-04",
+      "text": "Audio analysis runs continuously on both the camera device and viewer device to detect crying sounds and trigger browser notifications, accepting higher false positive rates to minimize risk of missing actual crying"
+    },
+    {
+      "id": "R-05",
+      "text": "Browser notifications must appear on the viewer device even when the tab is backgrounded (but browser remains open)"
+    },
+    {
+      "id": "R-06",
+      "text": "Users can switch roles between sender (camera) and viewer (monitor) within the same application instance"
+    },
+    {
+      "id": "R-07",
+      "text": "The application must handle camera/microphone permission requests and display connection status indicators"
+    },
+    {
+      "id": "R-08",
+      "text": "Cry detection should achieve less than 10% false positives and less than 20% false negatives"
+    },
+    {
+      "id": "R-09",
+      "text": "WebRTC peer connection establishment must work over HTTP, TCP, and WebSocket protocols; if NAT/firewall configuration prevents connection without user network changes, the application must clearly communicate this is impossible and provide workaround guidance"
+    },
+    {
+      "id": "R-10",
+      "text": "Cry detection accuracy will be validated using publicly available baby crying audio samples sourced online"
+    }
+  ],
+  "outOfScope": [
+    {
+      "id": "OS-01",
+      "text": "Cloud recording, storage, or historical playback of video streams"
+    },
+    {
+      "id": "OS-02",
+      "text": "Native mobile applications for iOS or Android"
+    },
+    {
+      "id": "OS-03",
+      "text": "Multi-room monitoring with multiple simultaneous camera sources"
+    },
+    {
+      "id": "OS-04",
+      "text": "User authentication, account management, or persistent user profiles"
+    },
+    {
+      "id": "OS-05",
+      "text": "Automatic connection establishment or device discovery without manual pairing"
+    },
+    {
+      "id": "OS-06",
+      "text": "Privacy or security requirements beyond standard WebRTC encryption for the peer-to-peer connection"
+    }
+  ],
+  "openQuestions": [],
+  "riskFlags": [
+    {
+      "id": "RF-01",
+      "text": "Serverless WebRTC without a signaling server is technically complex and may fail on restrictive networks (corporate firewalls, symmetric NATs). CRITICAL: Development must not proceed beyond connection establishment prototype until NAT/firewall traversal solution is validated or workaround strategy is defined for impossible connection scenarios."
+    },
+    {
+      "id": "RF-02",
+      "text": "Cry detection accuracy is undefined and may require significant tuning with publicly available baby crying audio samples to achieve acceptable false positive/negative rates"
+    },
+    {
+      "id": "RF-03",
+      "text": "Browser notification behavior when tabs are backgrounded varies across browsers and operating systems, potentially affecting core functionality"
+    },
+    {
+      "id": "RF-04",
+      "text": "The single HTML file constraint limits ability to update or patch the application after distribution to users"
+    },
+    {
+      "id": "RF-05",
+      "text": "Running cry detection on both sender and viewer sides will increase false positive rate, which is accepted as a tradeoff to minimize missed crying events, but may impact user experience"
+    },
+    {
+      "id": "RF-06",
+      "text": "1-day delivery timeline is extremely aggressive for a WebRTC application with cry detection, requiring immediate prioritization and potential scope reduction to achieve MVP"
+    }
+  ],
+  "needsClarification": false
+}

@@ -1,0 +1,122 @@
+{
+  "initiativeId": "init-babycameraapp-20260221-0750",
+  "totalInputTokens": 93713,
+  "totalOutputTokens": 35634,
+  "totalCacheCreationTokens": 0,
+  "totalCacheReadTokens": 0,
+  "totalTokens": 129347,
+  "callCount": 10,
+  "cacheHits": 0,
+  "calls": [
+    {
+      "timestamp": "2026-02-21T07:54:44.207Z",
+      "callSite": "tpmIntake",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 935,
+      "outputTokens": 3504,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 4439,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T07:55:06.961Z",
+      "callSite": "tpmDraftUnderstanding",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 4248,
+      "outputTokens": 1319,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 5567,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:02:57.970Z",
+      "callSite": "tpmApplyCorrections",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 5358,
+      "outputTokens": 1416,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 6774,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:04:08.649Z",
+      "callSite": "tpmRefineContract-r0",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 4015,
+      "outputTokens": 4891,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 8906,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:05:01.844Z",
+      "callSite": "tpmRefineContract-r0",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 4224,
+      "outputTokens": 4167,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 8391,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:05:21.728Z",
+      "callSite": "tpmDraftUnderstanding",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 4911,
+      "outputTokens": 1125,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 6036,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:08:07.225Z",
+      "callSite": "solutionArchitectGuardrails",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 4750,
+      "outputTokens": 3883,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 8633,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:08:48.224Z",
+      "callSite": "developerPlanning",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 4603,
+      "outputTokens": 383,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 4986,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:13:00.414Z",
+      "callSite": "developerMaterializeFiles",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 60551,
+      "outputTokens": 14699,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 75250,
+      "cached": false
+    },
+    {
+      "timestamp": "2026-02-21T08:13:07.532Z",
+      "callSite": "developerSummarizeDiff",
+      "model": "claude-sonnet-4-5-20250929",
+      "inputTokens": 118,
+      "outputTokens": 247,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 0,
+      "totalTokens": 365,
+      "cached": false
+    }
+  ]
+}

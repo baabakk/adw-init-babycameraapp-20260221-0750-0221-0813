@@ -1,0 +1,27 @@
+{
+  "techStack": "Single-file vanilla HTML/CSS/JS browser app with embedded WebRTC, Web Audio API, and Notification API",
+  "entryPoint": "baby-monitor.html",
+  "files": [
+    {
+      "path": "baby-monitor.html",
+      "purpose": "Self-contained single-file application with embedded CSS, JavaScript, and all UI components for peer-to-peer baby monitoring"
+    },
+    {
+      "path": "README.md",
+      "purpose": "User documentation covering setup, connection establishment, mode switching, cry detection testing, and troubleshooting"
+    }
+  ],
+  "runCommand": "open baby-monitor.html",
+  "constraints": [
+    "Single HTML file must be under 5MB with all assets embedded inline",
+    "WebRTC connection limited to same local network without STUN/TURN servers",
+    "Manual SDP offer/answer exchange via copy-paste required for peer connection",
+    "Cry detection algorithm tuned with publicly available baby crying audio samples",
+    "Browser notifications only work when tab backgrounded but browser remains open",
+    "Primary development and testing on Chrome 80+, documented compatibility with Firefox 75+/Safari 14+/Edge 80+",
+    "No external dependencies or CDN links - fully offline functional after initial load",
+    "High sensitivity cry detection prioritized over precision, accepting higher false positive rate",
+    "1-day prototype timeline limits production-grade error handling and edge case coverage",
+    "Connection failure due to NAT/firewall displays clear error with local network workaround instructions"
+  ]
+}
